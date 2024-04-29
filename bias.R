@@ -3,7 +3,7 @@ library(tidyverse)  # for data manipulation and visualization
 library(dplyr)
 library(ggplot2)
 
-# Set paths to your datasets
+# Set paths to datasets
 dataset_path_1 <- "/Users/vyduryaraghu/Documents/dissertation/dissertationdataset/dataset1.csv"
 
 # Load the datasets
@@ -13,7 +13,7 @@ dataset1 <- read_csv(dataset_path_1)
 head(dataset1)
 
 
-# Let's say we want to look at the distribution of genders in dataset 1
+# we want to look at the distribution of genders in dataset 1
 gender_distribution <- dataset1 %>%
   count(gender) %>%
   ggplot(aes(x = gender, y = n, fill = gender)) +
@@ -116,8 +116,7 @@ ggplot(gender_bias_summary, aes(x = company, y = total, fill = gender)) +
   labs(title = "Hiring Decisions by Gender and Company", x = "Company", y = "Total Applicants") +
   theme_minimal()
 
-# Conduct a Chi-squared test for each company to see if there's a significant difference
-# in hiring decisions based on gender
+# Conduct a Chi-squared test for each company to see if there's a significant difference in hiring decisions based on gender
 chi_squared_tests <- lapply(split(dataset1, dataset1$company), function(data) {
   table <- table(data$gender, data$decision)
   chisq.test(table)
@@ -138,7 +137,6 @@ model_without_gender <- glm(decision ~ . - Id - company, data = dataset_without_
 # Summary of the model to check the influence of each variable
 summary(model_without_gender)
 
-# You can also consider comparing this with a model that includes gender for reference.
 model_with_gender <- glm(decision ~ . - Id - company, data = dataset1 %>% mutate(across(where(is.logical), as.numeric)), family = "binomial")
 
 # Summary of the model with gender
@@ -147,7 +145,6 @@ summary(model_with_gender)
 model_interaction <- glm(decision ~ gender*`ind-university_grade` + gender*`ind-international_exp` + gender*`ind-languages` + gender*`ind-degree` + . - Id - company,
                          data = dataset1 %>% mutate(across(where(is.logical), as.numeric)),
                          family = "binomial")
-
 
 summary(model_interaction)
 # Filter dataset by gender and run analysis/model for each subgroup
@@ -158,7 +155,7 @@ dataset_male <- dataset1 %>% filter(gender == "male")
 model_female <- glm(decision ~ . - Id - company - gender, data = dataset_female %>% mutate(across(where(is.logical), as.numeric)), family = "binomial")
 summary(model_female)
 
-# Repeat for males and compare
+
 # Example: Distribution of university grades by gender
 ggplot(dataset1, aes(x = `ind-university_grade`, fill = gender)) +
   geom_histogram(position = "identity", alpha = 0.5, bins = 30) +
@@ -167,7 +164,6 @@ ggplot(dataset1, aes(x = `ind-university_grade`, fill = gender)) +
 library(randomForest)
 
 # Define predictors and response variable explicitly
-# Correcting the column names to those actually in dataset1
 predictors <- dataset1[, c("gender", "ind-university_grade", "ind-debateclub", "ind-programming_exp",
                            "ind-international_exp", "ind-entrepeneur_exp", "ind-languages", "ind-exact_study", "ind-degree")]
 
@@ -230,7 +226,7 @@ logistic_model <- glm(decision ~ gender + age + `ind-university_grade` + `ind-la
                       family = binomial(link = "logit"),
                       data = dataset_prepared)
 
-# Now, let's summarize the model to examine the coefficients and their significance
+# summarize the model to examine the coefficients and their significance
 summary(logistic_model)
 
 
